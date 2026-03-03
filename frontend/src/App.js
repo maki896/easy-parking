@@ -17,6 +17,7 @@ import CompletedVehicles from './pages/CompletedVehicles';
 import Reports from './pages/Reports';
 import RateSettings from './pages/RateSettings';
 import NotFound from './pages/NotFound';
+import PaymentReturn from './pages/PaymentReturn';
 
 // Import components
 import Navbar from './components/Navbar';
@@ -124,6 +125,10 @@ function AppContent() {
           }
         />
         
+        {/* Payment return routes - public, no navbar */}
+        <Route path="/payment/return" element={<PaymentReturn />} />
+        <Route path="/payment/callback" element={<PaymentReturn />} />
+
         {/* Catch all route */}
         <Route path="*" element={
           <>

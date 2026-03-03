@@ -133,9 +133,9 @@ const Dashboard = () => {
           color="yellow"
         />
         <StatCard
-          title="Total Revenue"
+          title="Total Revenue (Paid)"
           value={`ETB ${stats.totalRevenue.toFixed(2)}`}
-          icon={DollarSignIcon}
+          icon={CheckCircleIcon}
           color="green"
         />
         <StatCard

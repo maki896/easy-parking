@@ -319,6 +319,9 @@ const CompletedVehicles = () => {
                       <span className={`badge ${
                         vehicle.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning'
                       }`}>
+                        {vehicle.paymentStatus === 'paid' && (
+                          <CheckCircleIcon className="h-4 w-4 inline mr-1" />
+                        )}
                         {vehicle.paymentStatus}
                       </span>
                     </td>

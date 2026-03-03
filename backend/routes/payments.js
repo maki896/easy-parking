@@ -121,10 +121,8 @@ router.post('/verify/:tx_ref', async (req, res) => {
       });
     }
 
-    const transactionData = verificationResponse.data;
-
     // Check if payment was successful
-    if (transactionData.status === 'success') {
+    if (verificationResponse.status === 'success' || verificationResponse.status === 'paid') {
       // Update vehicle payment status
       vehicle.paymentStatus = 'paid';
       await vehicle.save();
@@ -132,14 +130,14 @@ router.post('/verify/:tx_ref', async (req, res) => {
       res.json({
         message: 'Payment verified successfully',
         status: 'paid',
-        transaction: transactionData,
+        transaction: verificationResponse,
         vehicle
       });
     } else {
       res.json({
         message: 'Payment not completed',
-        status: 'pending',
-        transaction: transactionData,
+        status: verificationResponse.status || 'pending',
+        transaction: verificationResponse,
         vehicle
       });
     }
