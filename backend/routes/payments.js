@@ -47,8 +47,8 @@ router.post('/initialize/:vehicleId', async (req, res) => {
       callback_url: `${process.env.FRONTEND_URL}/payment/callback`,
       return_url: `${process.env.FRONTEND_URL}/payment/return`,
       customization: {
-        title: 'Easy Park Payment',
-        description: `Parking fee for vehicle ${vehicle.plateNumber}`
+        title: 'Easy Park',
+        description: `Parking fee for ${vehicle.plateNumber}`
       }
     };
 
@@ -112,7 +112,7 @@ router.post('/verify/:tx_ref', async (req, res) => {
     }
 
     // Verify transaction with Chapa
-    const verificationResponse = await chapa.verifyTransaction(tx_ref);
+    const verificationResponse = await chapa.verifyPayment(tx_ref);
 
     if (!verificationResponse.success) {
       return res.status(500).json({

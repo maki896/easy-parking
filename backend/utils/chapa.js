@@ -15,9 +15,9 @@ class ChapaPayment {
     return `EP${timestamp}${random}`.toUpperCase();
   }
 
-  // Format amount for Chapa (in cents)
+  // Format amount for Chapa (in ETB)
   formatAmount(amount) {
-    return Math.round(amount * 100);
+    return Math.round(amount);
   }
 
   // Initialize a payment transaction
@@ -44,8 +44,8 @@ class ChapaPayment {
         callback_url: callback_url || `${process.env.FRONTEND_URL}/payment/callback`,
         return_url: return_url || `${process.env.FRONTEND_URL}/payment/return`,
         customization: customization || {
-          title: 'Easy Park Payment',
-          description: 'Parking fee payment',
+          title: 'Easy Park',
+          description: 'Parking fee',
           logo: 'https://your-logo-url.com/logo.png'
         },
         meta: {
@@ -83,7 +83,11 @@ class ChapaPayment {
       console.error('🔴 Chapa Payment Error:', error.response?.data || error.message);
       
       if (error.response?.data) {
-        throw new Error(error.response.data.message || 'Payment initialization failed');
+        const errorData = error.response.data;
+        const errorMessage = typeof errorData.message === 'object' 
+          ? JSON.stringify(errorData.message) 
+          : errorData.message || 'Payment initialization failed';
+        throw new Error(errorMessage);
       }
       
       throw new Error('Payment service unavailable. Please try again.');
