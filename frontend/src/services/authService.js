@@ -61,6 +61,16 @@ export const authService = {
   checkSetup: async () => {
     return await api.get('/auth/check-setup');
   },
+
+  // Update user profile
+  updateProfile: async (profileData) => {
+    return await api.put('/auth/profile', profileData);
+  },
+
+  // Change password
+  changePassword: async (passwordData) => {
+    return await api.put('/auth/change-password', passwordData);
+  },
 };
 
 export default api;

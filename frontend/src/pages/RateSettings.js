@@ -6,11 +6,19 @@ import {
   SaveIcon,
   RefreshCwIcon,
   CarIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  UserIcon,
+  LockIcon,
+  EyeIcon,
+  EyeOffIcon
 } from 'lucide-react';
 import { rateService } from '../services/rateService';
+import { authService } from '../services/authService';
+import { useAuth } from '../hooks/useAuth';
 
 const RateSettings = () => {
+  const { user, refreshUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('rates'); // rates | profile | password
   const [rates, setRates] = useState({
     Car: 1,
     Motorcycle: 0.5,
@@ -21,9 +29,35 @@ const RateSettings = () => {
   const [initializing, setInitializing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Profile state
+  const [profileData, setProfileData] = useState({
+    username: '',
+    email: ''
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // Password state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
+
   useEffect(() => {
     fetchRates();
-  }, []);
+    if (user) {
+      setProfileData({
+        username: user.username || '',
+        email: user.email || ''
+      });
+    }
+  }, [user]);
 
   const fetchRates = async () => {
     try {
@@ -126,6 +160,93 @@ const RateSettings = () => {
     }
   ];
 
+  const handleProfileChange = (field, value) => {
+    setProfileData({
+      ...profileData,
+      [field]: value
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setSavingProfile(true);
+      
+      if (!profileData.username.trim()) {
+        toast.error('Username is required');
+        return;
+      }
+
+      const response = await authService.updateProfile(profileData);
+      
+      if (response.data) {
+        toast.success('Profile updated successfully!');
+        await refreshUser();
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to update profile';
+      toast.error(errorMessage);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handlePasswordChange = (field, value) => {
+    setPasswordData({
+      ...passwordData,
+      [field]: value
+    });
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords({
+      ...showPasswords,
+      [field]: !showPasswords[field]
+    });
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      setChangingPassword(true);
+
+      // Validation
+      if (!passwordData.currentPassword) {
+        toast.error('Current password is required');
+        return;
+      }
+      if (!passwordData.newPassword) {
+        toast.error('New password is required');
+        return;
+      }
+      if (passwordData.newPassword.length < 6) {
+        toast.error('New password must be at least 6 characters');
+        return;
+      }
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        toast.error('New passwords do not match');
+        return;
+      }
+
+      const response = await authService.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+
+      if (response.data) {
+        toast.success('Password changed successfully!');
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to change password';
+      toast.error(errorMessage);
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -142,8 +263,8 @@ const RateSettings = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Rate Settings</h1>
-            <p className="text-gray-600 mt-2">Configure per-minute pricing for different vehicle types</p>
+            <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+            <p className="text-gray-600 mt-2">Manage rates, profile, and security settings</p>
           </div>
           <div className="flex space-x-3">
             <button
@@ -171,6 +292,48 @@ const RateSettings = () => {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="mb-6 border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('rates')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'rates'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <DollarSignIcon className="h-5 w-5 inline mr-2" />
+            Rate Settings
+          </button>
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'profile'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <UserIcon className="h-5 w-5 inline mr-2" />
+            Edit Profile
+          </button>
+          <button
+            onClick={() => setActiveTab('password')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'password'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <LockIcon className="h-5 w-5 inline mr-2" />
+            Change Password
+          </button>
+        </nav>
+      </div>
+
+      {/* Rate Settings Tab */}
+      {activeTab === 'rates' && (
+        <>
       {!isInitialized && (
         <div className="card mb-6 border-l-4 border-yellow-400 bg-yellow-50">
           <div className="card-body">
@@ -219,7 +382,7 @@ const RateSettings = () => {
                       className="input pl-12 text-lg font-semibold"
                       min="0"
                       max="9999"
-                      step="0.01"
+                      step="0.5"
                     />
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
@@ -330,6 +493,200 @@ const RateSettings = () => {
           </div>
         </div>
       </div>
+        </>
+      )}
+
+      {/* Edit Profile Tab */}
+      {activeTab === 'profile' && (
+        <div className="max-w-2xl mx-auto">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <UserIcon className="h-6 w-6 mr-2" />
+                Edit Profile
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">Update your account information</p>
+            </div>
+            <div className="card-body">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.username}
+                    onChange={(e) => handleProfileChange('username', e.target.value)}
+                    className="input"
+                    placeholder="Enter username"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => handleProfileChange('email', e.target.value)}
+                    className="input"
+                    placeholder="Enter email address"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={savingProfile}
+                    className="btn btn-primary w-full"
+                  >
+                    {savingProfile ? (
+                      <div className="flex items-center justify-center">
+                        <div className="loading-spinner h-5 w-5 mr-2"></div>
+                        Saving...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <SaveIcon className="h-5 w-5 mr-2" />
+                        Save Profile
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Tab */}
+      {activeTab === 'password' && (
+        <div className="max-w-2xl mx-auto">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <LockIcon className="h-6 w-6 mr-2" />
+                Change Password
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">Update your account password</p>
+            </div>
+            <div className="card-body">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.current ? 'text' : 'password'}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
+                      className="input pr-10"
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('current')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.current ? (
+                        <EyeOffIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.new ? 'text' : 'password'}
+                      value={passwordData.newPassword}
+                      onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
+                      className="input pr-10"
+                      placeholder="Enter new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('new')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.new ? (
+                        <EyeOffIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirm ? 'text' : 'password'}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                      className="input pr-10"
+                      placeholder="Confirm new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('confirm')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.confirm ? (
+                        <EyeOffIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={changingPassword}
+                    className="btn btn-primary w-full"
+                  >
+                    {changingPassword ? (
+                      <div className="flex items-center justify-center">
+                        <div className="loading-spinner h-5 w-5 mr-2"></div>
+                        Changing Password...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <LockIcon className="h-5 w-5 mr-2" />
+                        Change Password
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>Security Tips:</strong>
+                  </p>
+                  <ul className="mt-2 text-xs text-blue-700 space-y-1 list-disc list-inside">
+                    <li>Use a strong password with letters, numbers, and symbols</li>
+                    <li>Don't reuse passwords from other accounts</li>
+                    <li>Change your password regularly</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

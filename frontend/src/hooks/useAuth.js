@@ -90,6 +90,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await authService.getCurrentUser();
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -97,6 +106,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     checkSetup,
+    refreshUser,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin'
   };
