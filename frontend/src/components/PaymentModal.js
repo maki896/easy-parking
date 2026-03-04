@@ -68,6 +68,9 @@ const PaymentModal = ({ vehicle, isOpen, onClose, onPaymentSuccess }) => {
 
   const openPaymentLink = () => {
     if (paymentData?.checkout_url) {
+      // Save tx_ref to localStorage so PaymentReturn page can retrieve it
+      localStorage.setItem('pending_tx_ref', paymentData.tx_ref);
+      localStorage.setItem('pending_vehicle_id', vehicle._id);
       window.open(paymentData.checkout_url, '_blank');
     }
   };

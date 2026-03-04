@@ -42,8 +42,8 @@ const Dashboard = () => {
       const vehicleStatsResponse = await vehicleService.getVehicleStats();
       const vehicleStats = vehicleStatsResponse.data.summary;
       
-      // Fetch today's report summary
-      const reportResponse = await reportService.getReportSummary({ period: 'today' });
+      // Fetch all-time report summary for total revenue
+      const reportResponse = await reportService.getReportSummary({ period: 'all' });
       const reportData = reportResponse.data;
 
       setStats({

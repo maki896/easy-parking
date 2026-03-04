@@ -17,10 +17,16 @@ router.get('/summary', async (req, res) => {
 
     // Determine date range
     let start, end;
-    if (startDate && endDate) {
+    let dateFilter = {};
+
+    if (period === 'all') {
+      // No date filter - return all-time data
+      dateFilter = {};
+    } else if (startDate && endDate) {
       start = new Date(startDate);
       end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // Include entire end day
+      end.setHours(23, 59, 59, 999);
+      dateFilter = { createdAt: { $gte: start, $lte: end } };
     } else if (period) {
       const now = moment();
       switch (period) {
@@ -44,17 +50,11 @@ router.get('/summary', async (req, res) => {
           start = now.clone().startOf('month').toDate();
           end = now.clone().endOf('month').toDate();
       }
+      dateFilter = { createdAt: { $gte: start, $lte: end } };
     } else {
-      // Default to current month
-      const now = moment();
-      start = now.clone().startOf('month').toDate();
-      end = now.clone().endOf('month').toDate();
+      // Default to all-time for dashboard
+      dateFilter = {};
     }
-
-    // Build date filter
-    const dateFilter = {
-      createdAt: { $gte: start, $lte: end }
-    };
 
     // Simplified queries for better performance
     const totalVehicles = await Vehicle.countDocuments(dateFilter);

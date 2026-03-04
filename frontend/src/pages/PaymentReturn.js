@@ -11,14 +11,21 @@ const PaymentReturn = () => {
   const [amount, setAmount] = useState('');
 
   useEffect(() => {
-    const tx_ref = searchParams.get('tx_ref') || searchParams.get('trx_ref');
+    // Try URL params first, then fall back to localStorage
+    const tx_ref = searchParams.get('tx_ref') 
+      || searchParams.get('trx_ref') 
+      || localStorage.getItem('pending_tx_ref');
     const chapaStatus = searchParams.get('status');
 
     if (!tx_ref) {
       setStatus('failed');
-      setMessage('No transaction reference found.');
+      setMessage('No transaction reference found. Please go back and try again.');
       return;
     }
+
+    // Clean up localStorage after reading
+    localStorage.removeItem('pending_tx_ref');
+    localStorage.removeItem('pending_vehicle_id');
 
     verifyPayment(tx_ref, chapaStatus);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
