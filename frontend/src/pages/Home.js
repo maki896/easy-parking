@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   CarIcon,
@@ -8,25 +8,59 @@ import {
   ClockIcon,
   DollarSignIcon,
   ArrowRightIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  CreditCardIcon,
+  BarChart3Icon,
+  UsersIcon,
+  ZapIcon
 } from 'lucide-react';
 
 const Home = () => {
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const features = [
     {
       icon: QrCodeIcon,
       title: 'Secure QR Payments',
       description: 'Fast and secure QR code payments with Chapa integration. No cash needed, just scan and pay.',
+      color: 'from-teal-400 to-teal-600'
+    },
+    {
+      icon: BarChart3Icon,
+      title: 'Smart Analytics',
+      description: 'Comprehensive analytics with daily, weekly, monthly, and yearly revenue insights and trends.',
+      color: 'from-emerald-400 to-emerald-600'
     },
     {
       icon: CarIcon,
-      title: 'Real-Time Vehicle Tracking',
+      title: 'Vehicle Tracking',
       description: 'Track all vehicles in real-time with automatic entry/exit time recording and status monitoring.',
+      color: 'from-blue-400 to-blue-600'
     },
     {
-      icon: TrendingUpIcon,
-      title: 'Smart Revenue Reports',
-      description: 'Comprehensive analytics with daily, weekly, monthly, and yearly revenue insights and trends.',
+      icon: ZapIcon,
+      title: 'Lightning Fast',
+      description: 'Quick vehicle registration and checkout process. Get your customers in and out efficiently.',
+      color: 'from-amber-400 to-amber-600'
     },
   ];
 
@@ -39,53 +73,119 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      <style>{`
+        .scroll-animate {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-animate.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .hero-image-container {
+          position: relative;
+          animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .feature-card {
+          transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .stat-card {
+          transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+          transform: scale(1.05);
+        }
+        .cta-button {
+          transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-              Smart Parking Made Simple
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-              Transform your parking management with our comprehensive solution. 
-              QR payments, real-time tracking, and detailed analytics - all in one platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
-                className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
-              >
-                Get Started Today
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
-              <Link
-                to="/services"
-                className="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg font-semibold"
-              >
-                Learn More
-              </Link>
+      <section className="relative bg-gradient-to-br from-white via-gray-50 to-teal-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              <div className="inline-block">
+                <span className="bg-teal-100 text-teal-700 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+                  🚀 Modern Parking Solution
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                Car Parking and
+                <span className="block text-teal-600">Management System</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                Transform your parking facility with our comprehensive management solution. 
+                Real-time tracking, QR payments, and detailed analytics - all in one powerful platform.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/contact"
+                  className="cta-button inline-flex items-center justify-center bg-teal-600 text-white hover:bg-teal-700 px-8 py-4 rounded-lg text-lg font-semibold shadow-lg"
+                >
+                  Get Started
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                </Link>
+                <Link
+                  to="/services"
+                  className="inline-flex items-center justify-center border-2 border-gray-300 text-gray-700 hover:border-teal-600 hover:text-teal-600 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Image - User can replace this */}
+            <div className="hero-image-container relative">
+              <div className="relative bg-gradient-to-br from-teal-400 to-teal-600 rounded-3xl p-8 shadow-2xl">
+                <div className="bg-white rounded-2xl p-8 text-center">
+                  <div className="text-7xl mb-4">🚗</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Easy Parking</h3>
+                  <p className="text-gray-600 mb-4">Smart. Secure. Simple.</p>
+                  {/* User can replace this section with their own image */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-500 italic">
+                      📸 Replace this section with your parking facility image
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Add your image in src/assets/images/
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {/* Decorative circles */}
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-teal-200 rounded-full opacity-50 blur-xl"></div>
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-200 rounded-full opacity-50 blur-xl"></div>
             </div>
           </div>
-        </div>
-        
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-10 -left-10 w-40 h-40 bg-white opacity-10 rounded-full"></div>
-          <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-white opacity-10 rounded-full"></div>
         </div>
       </section>
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                  <stat.icon className="h-8 w-8 text-primary-600" />
+              <div key={index} className="stat-card text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-md hover:shadow-xl">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full mb-4 shadow-sm">
+                  <stat.icon className="h-8 w-8 text-teal-600" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+                <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -93,11 +193,11 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-animate">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Easy Park?
+              Features for <span className="text-teal-600">Modern Parking</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our comprehensive parking management solution is designed to make parking operations 
@@ -105,13 +205,13 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <div key={index} className="card p-8 hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-6">
-                  <feature.icon className="h-8 w-8 text-primary-600" />
+              <div key={index} className={`feature-card scroll-animate bg-white rounded-2xl p-8 shadow-lg`} style={{transitionDelay: `${index * 100}ms`}}>
+                <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${feature.color} rounded-xl mb-6 shadow-md`}>
+                  <feature.icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
@@ -119,63 +219,72 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Pricing Preview */}
-      <section className="py-20 bg-white">
+      {/* Image Section with Text */}
+      <section className="py-20 bg-white scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Transparent Per-Minute Pricing
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Fair and transparent pricing with per-minute billing. Pay only for the time you use.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card p-8 text-center hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🚗</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Car</h3>
-              <div className="text-3xl font-bold text-primary-600 mb-2">1 ETB</div>
-              <p className="text-gray-600">per minute</p>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <div className="bg-gradient-to-br from-teal-100 to-blue-100 rounded-3xl p-8 shadow-xl">
+                <div className="bg-white rounded-2xl p-6 text-center">
+                  <div className="text-6xl mb-4">👥</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Customer Focused</h3>
+                  <p className="text-gray-600">
+                    Easy check-in and checkout process for your customers
+                  </p>
+                  <div className="mt-6 text-sm text-gray-500 italic">
+                    Replace with customer service image
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div className="card p-8 text-center hover:shadow-lg transition-shadow border-2 border-primary-500">
-              <div className="text-4xl mb-4">🏍️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Motorcycle</h3>
-              <div className="text-3xl font-bold text-primary-600 mb-2">0.50 ETB</div>
-              <p className="text-gray-600">per minute</p>
-            </div>
-            
-            <div className="card p-8 text-center hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🚛</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Truck</h3>
-              <div className="text-3xl font-bold text-primary-600 mb-2">1.50 ETB</div>
-              <p className="text-gray-600">per minute</p>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                Designed for Your Success
+              </h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Our parking management system is built with modern technology to ensure 
+                smooth operations and happy customers.
+              </p>
+              <div className="space-y-4">
+                {[
+                  'Real-time vehicle monitoring',
+                  'Automated payment processing',
+                  'Detailed revenue analytics',
+                  'Mobile-friendly interface',
+                  'Secure data management',
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <CheckCircleIcon className="h-6 w-6 text-teal-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 font-medium">{benefit}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary-600 text-white">
+      <section className="py-20 bg-gradient-to-br from-teal-600 to-teal-800 text-white scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Transform Your Parking Management?
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-3xl mx-auto">
             Join hundreds of parking facilities that have already streamlined their operations 
             with Easy Park's smart management system.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/contact"
-              className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
+              className="cta-button inline-flex items-center justify-center bg-white text-teal-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold shadow-lg"
             >
               Request Demo
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
             <Link
               to="/about"
-              className="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg font-semibold"
+              className="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-teal-600 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300"
             >
               Learn More
             </Link>
@@ -184,7 +293,7 @@ const Home = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -200,16 +309,16 @@ const Home = () => {
                   'Affordable pricing for Ethiopian market',
                 ].map((benefit, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <CheckCircleIcon className="h-6 w-6 text-success-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">{benefit}</span>
+                    <CheckCircleIcon className="h-6 w-6 text-teal-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 font-medium">{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl p-8 text-center">
-              <div className="text-6xl mb-4">🇪🇹</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Made for Ethiopia</h3>
-              <p className="text-gray-700">
+            <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl p-12 text-center shadow-xl">
+              <div className="text-7xl mb-4">🇪🇹</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Made for Ethiopia</h3>
+              <p className="text-gray-700 text-lg">
                 Proudly serving Ethiopian businesses with solutions tailored to local needs and regulations.
               </p>
             </div>
