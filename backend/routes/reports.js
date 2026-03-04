@@ -141,46 +141,105 @@ router.get('/export/csv', async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Generate CSV
-    const csvHeaders = [
+    // Calculate summary statistics
+    const totalVehicles = vehicles.length;
+    const totalRevenue = vehicles.reduce((sum, v) => sum + (v.paymentStatus === 'paid' ? v.fee : 0), 0);
+    const paidCount = vehicles.filter(v => v.paymentStatus === 'paid').length;
+    const pendingCount = vehicles.filter(v => v.paymentStatus === 'pending').length;
+    const activeCount = vehicles.filter(v => v.status === 'active').length;
+    const completedCount = vehicles.filter(v => v.status === 'completed').length;
+
+    // Build beautiful CSV with proper formatting
+    const csvLines = [];
+    
+    // UTF-8 BOM for proper Excel encoding
+    const BOM = '\uFEFF';
+    
+    // Report Header
+    csvLines.push('EASY PARKING SYSTEM - VEHICLE REPORT');
+    csvLines.push(`Generated: ${moment().format('MMMM DD, YYYY [at] HH:mm:ss')}`);
+    csvLines.push('');
+    
+    // Filter Information
+    csvLines.push('REPORT FILTERS');
+    if (startDate) csvLines.push(`Start Date: ${moment(startDate).format('MMMM DD, YYYY')}`);
+    if (endDate) csvLines.push(`End Date: ${moment(endDate).format('MMMM DD, YYYY')}`);
+    if (status) csvLines.push(`Status Filter: ${status.toUpperCase()}`);
+    if (paymentStatus) csvLines.push(`Payment Filter: ${paymentStatus.toUpperCase()}`);
+    if (!startDate && !endDate && !status && !paymentStatus) csvLines.push('No filters applied - All records');
+    csvLines.push('');
+    
+    // Summary Statistics
+    csvLines.push('SUMMARY STATISTICS');
+    csvLines.push(`Total Vehicles: ${totalVehicles}`);
+    csvLines.push(`Active Vehicles: ${activeCount}`);
+    csvLines.push(`Completed Vehicles: ${completedCount}`);
+    csvLines.push(`Paid Transactions: ${paidCount}`);
+    csvLines.push(`Pending Payments: ${pendingCount}`);
+    csvLines.push(`Total Revenue: ETB ${totalRevenue.toFixed(2)}`);
+    csvLines.push('');
+    csvLines.push('');
+    
+    // Data Table Header
+    csvLines.push('VEHICLE RECORDS');
+    csvLines.push('');
+    
+    // Column Headers
+    const headers = [
       'Plate Number',
       'Vehicle Type',
       'Color',
       'Entry Time',
       'Exit Time',
-      'Duration (Minutes)',
-      'Rate per Minute (ETB)',
-      'Fee (ETB)',
+      'Duration (min)',
+      'Rate (ETB/min)',
+      'Total Fee (ETB)',
       'Status',
       'Payment Status',
       'Payment Reference',
-      'Created At'
+      'Record Created'
     ];
-
-    const csvRows = vehicles.map(vehicle => [
-      vehicle.plateNumber,
-      vehicle.vehicleType,
-      vehicle.color || '',
-      moment(vehicle.entryTime).format('YYYY-MM-DD HH:mm:ss'),
-      vehicle.exitTime ? moment(vehicle.exitTime).format('YYYY-MM-DD HH:mm:ss') : '',
-      vehicle.durationInMinutes || '',
-      vehicle.ratePerMinute,
-      vehicle.fee,
-      vehicle.status,
-      vehicle.paymentStatus,
-      vehicle.paymentReference || '',
-      moment(vehicle.createdAt).format('YYYY-MM-DD HH:mm:ss')
-    ]);
-
-    // Convert to CSV string
-    const csvContent = [
-      csvHeaders.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+    csvLines.push(headers.join(','));
+    
+    // Data Rows
+    vehicles.forEach(vehicle => {
+      const row = [
+        vehicle.plateNumber,
+        vehicle.vehicleType,
+        vehicle.color || 'N/A',
+        moment(vehicle.entryTime).format('YYYY-MM-DD HH:mm'),
+        vehicle.exitTime ? moment(vehicle.exitTime).format('YYYY-MM-DD HH:mm') : 'Still Parked',
+        vehicle.durationInMinutes || '0',
+        vehicle.ratePerMinute.toFixed(2),
+        vehicle.fee.toFixed(2),
+        vehicle.status.toUpperCase(),
+        vehicle.paymentStatus.toUpperCase(),
+        vehicle.paymentReference || 'N/A',
+        moment(vehicle.createdAt).format('YYYY-MM-DD HH:mm')
+      ];
+      // Properly escape fields containing commas or quotes
+      const escapedRow = row.map(cell => {
+        const cellStr = String(cell);
+        if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+          return `"${cellStr.replace(/"/g, '""')}"`;
+        }
+        return cellStr;
+      });
+      csvLines.push(escapedRow.join(','));
+    });
+    
+    // Footer
+    csvLines.push('');
+    csvLines.push('');
+    csvLines.push('END OF REPORT');
+    csvLines.push('Easy Parking System © 2026');
+    
+    // Combine all lines
+    const csvContent = BOM + csvLines.join('\n');
 
     // Set headers for file download
-    const filename = `easyparking_report_${moment().format('YYYY-MM-DD_HH-mm-ss')}.csv`;
-    res.setHeader('Content-Type', 'text/csv');
+    const filename = `EasyParking_Report_${moment().format('YYYY-MM-DD_HHmmss')}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     
     res.send(csvContent);
