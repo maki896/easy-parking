@@ -192,11 +192,6 @@ router.put('/profile', auth, [
     .optional()
     .isLength({ min: 3, max: 50 })
     .withMessage('Username must be between 3 and 50 characters')
-    .trim(),
-  body('email')
-    .optional()
-    .isEmail()
-    .withMessage('Invalid email format')
     .trim()
 ], async (req, res) => {
   try {
@@ -222,9 +217,9 @@ router.put('/profile', auth, [
       user.username = username;
     }
 
-    // Update email if provided
+    // Update email if provided (empty string clears it)
     if (email !== undefined) {
-      user.email = email;
+      user.email = email.trim() || null;
     }
 
     await user.save();
