@@ -136,3 +136,31 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
 });
+
+// Handle MongoDB disconnection and auto-reconnect
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
+  setTimeout(() => {
+    mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/easyparking', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }).catch(err => console.error('❌ Reconnection failed:', err.message));
+  }, 5000);
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ MongoDB reconnected');
+});
+
+// Prevent server from crashing on unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️  Unhandled Promise Rejection:', reason?.message || reason);
+});
+
+// Prevent server from crashing on uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('⚠️  Uncaught Exception:', error.message);
+  if (error.code === 'EADDRINUSE' || error.code === 'ECONNREFUSED') {
+    process.exit(1);
+  }
+});

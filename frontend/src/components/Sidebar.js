@@ -62,12 +62,12 @@ const Sidebar = () => {
     <div className="hidden md:flex md:flex-shrink-0">
       <div className="flex flex-col w-64">
         {/* Sidebar Header */}
-        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white border-r border-gray-200">
+        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center flex-shrink-0 px-4">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">EP</span>
             </div>
-            <span className="ml-2 text-lg font-semibold text-gray-900">Easy Park</span>
+            <span className="ml-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Easy Park</span>
           </div>
           
           {/* Navigation */}
@@ -100,18 +100,18 @@ const Sidebar = () => {
         </div>
         
         {/* Sidebar Footer */}
-        <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
+        <div className="flex-shrink-0 flex border-t border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 font-medium text-sm">
+              <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
+                <span className="text-teal-700 dark:text-teal-300 font-medium text-sm">
                   {localStorage.getItem('username')?.charAt(0).toUpperCase() || 'A'}
                 </span>
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-700">Admin</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Admin</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {localStorage.getItem('username') || 'Administrator'}
               </p>
             </div>

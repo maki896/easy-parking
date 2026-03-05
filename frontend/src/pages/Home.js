@@ -150,7 +150,7 @@ const Home = () => {
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-white via-gray-50 to-teal-50 overflow-hidden pt-8 md:pt-12">
+      <section className="relative bg-gradient-to-br from-white via-gray-50 to-teal-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 overflow-hidden pt-8 md:pt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Content */}
@@ -185,23 +185,14 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Image - User can replace this */}
+            {/* Right Image */}
             <div className="hero-image-container relative">
-              <div className="relative bg-gradient-to-br from-teal-400 to-teal-600 rounded-3xl p-8 shadow-2xl">
-                <div className="bg-white rounded-2xl p-8 text-center">
-                  <div className="text-7xl mb-4">🚗</div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Easy Parking</h3>
-                  <p className="text-gray-600 mb-4">Smart. Secure. Simple.</p>
-                  {/* User can replace this section with their own image */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-500 italic">
-                      📸 Replace this section with your parking facility image
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Add your image in src/assets/images/
-                    </p>
-                  </div>
-                </div>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src="/images/my1.png"
+                  alt="Easy Parking Facility"
+                  className="w-full h-auto object-cover rounded-3xl"
+                />
               </div>
               {/* Decorative circles */}
               <div className="absolute -top-6 -right-6 w-24 h-24 bg-teal-200 rounded-full opacity-50 blur-xl"></div>
@@ -274,17 +265,12 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative">
-              <div className="bg-gradient-to-br from-teal-100 to-blue-100 rounded-3xl p-8 shadow-xl">
-                <div className="bg-white rounded-2xl p-6 text-center">
-                  <div className="text-6xl mb-4">👥</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Customer Focused</h3>
-                  <p className="text-gray-600">
-                    Easy check-in and checkout process for your customers
-                  </p>
-                  <div className="mt-6 text-sm text-gray-500 italic">
-                    Replace with customer service image
-                  </div>
-                </div>
+              <div className="rounded-3xl overflow-hidden shadow-xl">
+                <img
+                  src="/images/cs.png"
+                  alt="Customer Service"
+                  className="w-full h-auto object-cover rounded-3xl"
+                />
               </div>
             </div>
             <div>
