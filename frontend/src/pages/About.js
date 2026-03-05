@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ShieldIcon,
@@ -8,10 +8,54 @@ import {
   CheckCircleIcon,
   UsersIcon,
   GlobeIcon,
-  HeartIcon
+  HeartIcon,
+  BikeIcon,
+  TruckIcon
 } from 'lucide-react';
 
 const About = () => {
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const vehicleTypes = [
+    {
+      icon: '🏍️',
+      title: 'Motorcycles',
+      description: 'Perfect storage solution for motorcycles and bikes with secure parking spaces.',
+      gradient: 'from-blue-400 to-blue-600'
+    },
+    {
+      icon: '🚗',
+      title: 'Cars',
+      description: 'Spacious and safe parking for all types of cars including sedans and SUVs.',
+      gradient: 'from-teal-400 to-teal-600'
+    },
+    {
+      icon: '🚛',
+      title: 'Trucks',
+      description: 'Large capacity parking areas designed for trucks and commercial vehicles.',
+      gradient: 'from-amber-400 to-amber-600'
+    }
+  ];
+
   const features = [
     {
       icon: ShieldIcon,
@@ -69,12 +113,31 @@ const About = () => {
 
   return (
     <div className="min-h-screen">
+      <style>{`
+        .scroll-animate {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .vehicle-card {
+          transition: all 0.4s ease;
+        }
+        .vehicle-card:hover {
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
+      <section className="bg-gradient-to-br from-teal-600 to-teal-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">About Easy Park</h1>
-            <p className="text-xl text-primary-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               We're revolutionizing parking management in Ethiopia with innovative technology, 
               secure payments, and data-driven insights that help businesses thrive.
             </p>
@@ -82,17 +145,31 @@ const About = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
+      {/* Vehicle Types Section - 3 Images in Row */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                  <stat.icon className="h-8 w-8 text-primary-600" />
+          <div className="text-center mb-16 scroll-animate">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              We Store All <span className="text-teal-600">Vehicle Types</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              From motorcycles to trucks, our parking facility accommodates all types of vehicles 
+              with secure and spacious parking areas.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {vehicleTypes.map((vehicle, index) => (
+              <div 
+                key={index} 
+                className="vehicle-card scroll-animate bg-white rounded-3xl p-8 shadow-xl"
+                style={{transitionDelay: `${index * 150}ms`}}
+              >
+                <div className={`w-full h-48 bg-gradient-to-br ${vehicle.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}>
+                  <div className="text-8xl">{vehicle.icon}</div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">{vehicle.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-center">{vehicle.description}</p>
               </div>
             ))}
           </div>
@@ -102,7 +179,7 @@ const About = () => {
       {/* Features Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-animate">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Core Features
             </h2>
@@ -114,16 +191,16 @@ const About = () => {
           
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="card p-8 hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-6">
-                  <feature.icon className="h-8 w-8 text-primary-600" />
+              <div key={index} className="scroll-animate card p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" style={{transitionDelay: `${index * 100}ms`}}>
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full mb-6 shadow-sm">
+                  <feature.icon className="h-8 w-8 text-teal-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">{feature.description}</p>
                 <ul className="space-y-2">
                   {feature.details.map((detail, idx) => (
                     <li key={idx} className="flex items-center text-sm text-gray-600">
-                      <CheckCircleIcon className="h-4 w-4 text-success-500 mr-2 flex-shrink-0" />
+                      <CheckCircleIcon className="h-4 w-4 text-teal-600 mr-2 flex-shrink-0" />
                       {detail}
                     </li>
                   ))}
@@ -165,46 +242,6 @@ const About = () => {
                 <p className="text-gray-600 text-sm leading-relaxed">{step.description}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Technology Stack */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Built with Modern Technology
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We use cutting-edge technology to ensure reliability, security, and scalability.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="card p-6 text-center">
-              <div className="text-3xl mb-4">⚛️</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">React</h3>
-              <p className="text-sm text-gray-600">Modern frontend framework for responsive user interface</p>
-            </div>
-            
-            <div className="card p-6 text-center">
-              <div className="text-3xl mb-4">🟢</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Node.js</h3>
-              <p className="text-sm text-gray-600">Scalable backend server with Express.js</p>
-            </div>
-            
-            <div className="card p-6 text-center">
-              <div className="text-3xl mb-4">🍃</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">MongoDB</h3>
-              <p className="text-sm text-gray-600">NoSQL database for flexible data storage</p>
-            </div>
-            
-            <div className="card p-6 text-center">
-              <div className="text-3xl mb-4">💳</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Chapa</h3>
-              <p className="text-sm text-gray-600">Ethiopian payment gateway for secure transactions</p>
-            </div>
           </div>
         </div>
       </section>
@@ -254,7 +291,7 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary-600 text-white">
+      <section className="py-20 bg-gradient-to-br from-teal-600 to-teal-800 text-white scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
             <HeartIcon className="h-8 w-8 mr-2" />
@@ -262,22 +299,22 @@ const About = () => {
               Ready to Transform Your Parking Business?
             </h2>
           </div>
-          <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-3xl mx-auto">
             Join hundreds of parking facilities across Ethiopia that have already 
             streamlined their operations with Easy Park.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/contact"
-              className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
+              className="inline-flex items-center justify-center bg-white text-teal-600 hover:bg-gray-100 px-8 py-3 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
               Request Demo
             </Link>
             <Link
               to="/services"
-              className="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg font-semibold"
+              className="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-teal-600 px-8 py-3 rounded-lg text-lg font-semibold transition-all duration-300"
             >
-              View Pricing
+              View Services
             </Link>
           </div>
         </div>

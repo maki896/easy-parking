@@ -37,6 +37,27 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
+  const vehicleTypes = [
+    {
+      icon: '🏍️',
+      title: 'Motorcycles',
+      description: 'Perfect storage solution for motorcycles and bikes with secure parking spaces.',
+      gradient: 'from-blue-400 to-blue-600'
+    },
+    {
+      icon: '🚗',
+      title: 'Cars',
+      description: 'Spacious and safe parking for all types of cars including sedans and SUVs.',
+      gradient: 'from-teal-400 to-teal-600'
+    },
+    {
+      icon: '🚛',
+      title: 'Trucks',
+      description: 'Large capacity parking areas designed for trucks and commercial vehicles.',
+      gradient: 'from-amber-400 to-amber-600'
+    }
+  ];
+
   const features = [
     {
       icon: QrCodeIcon,
@@ -64,20 +85,13 @@ const Home = () => {
     },
   ];
 
-  const stats = [
-    { label: 'Vehicles Managed', value: '10,000+', icon: CarIcon },
-    { label: 'Payments Processed', value: 'ETB 500K+', icon: DollarSignIcon },
-    { label: 'Uptime', value: '99.9%', icon: ClockIcon },
-    { label: 'Secure Transactions', value: '100%', icon: ShieldIcon },
-  ];
-
   return (
     <div className="min-h-screen">
       <style>{`
         .scroll-animate {
           opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          transform: translateY(50px);
+          transition: opacity 1s ease-out, transform 1s ease-out;
         }
         .scroll-animate.animate-in {
           opacity: 1;
@@ -111,24 +125,46 @@ const Home = () => {
           transform: translateY(-2px);
           box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
+        .typing-text {
+          overflow: hidden;
+          border-right: 3px solid #0d9488;
+          white-space: nowrap;
+          animation: typing 2s steps(30, end), blink-caret 0.75s step-end infinite;
+          display: inline-block;
+        }
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+        @keyframes blink-caret {
+          from, to { border-color: transparent; }
+          50% { border-color: #0d9488; }
+        }
+        .vehicle-card {
+          transition: all 0.4s ease;
+        }
+        .vehicle-card:hover {
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-white via-gray-50 to-teal-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="relative bg-gradient-to-br from-white via-gray-50 to-teal-50 overflow-hidden pt-8 md:pt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Content */}
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
               <div className="inline-block">
                 <span className="bg-teal-100 text-teal-700 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
                   🚀 Modern Parking Solution
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight">
                 Car Parking and
-                <span className="block text-teal-600">Management System</span>
+                <span className="block text-teal-600 typing-text">Management System</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+              <p className="text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
                 Transform your parking facility with our comprehensive management solution. 
                 Real-time tracking, QR payments, and detailed analytics - all in one powerful platform.
               </p>
@@ -175,17 +211,31 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
+      {/* Vehicle Types Section - 3 Images in Row */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <div key={index} className="stat-card text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-md hover:shadow-xl">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full mb-4 shadow-sm">
-                  <stat.icon className="h-8 w-8 text-teal-600" />
+          <div className="text-center mb-16 scroll-animate">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              We Store All <span className="text-teal-600">Vehicle Types</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              From motorcycles to trucks, our parking facility accommodates all types of vehicles 
+              with secure and spacious parking areas.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {vehicleTypes.map((vehicle, index) => (
+              <div 
+                key={index} 
+                className="vehicle-card scroll-animate bg-white rounded-3xl p-8 shadow-xl"
+                style={{transitionDelay: `${index * 150}ms`}}
+              >
+                <div className={`w-full h-48 bg-gradient-to-br ${vehicle.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}>
+                  <div className="text-8xl">{vehicle.icon}</div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 text-center">{vehicle.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-center">{vehicle.description}</p>
               </div>
             ))}
           </div>

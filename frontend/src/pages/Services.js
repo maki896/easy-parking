@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CarIcon,
@@ -15,6 +15,26 @@ import {
 } from 'lucide-react';
 
 const Services = () => {
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
   const vehicleTypes = [
     {
       type: 'Car',
@@ -122,7 +142,7 @@ const Services = () => {
       <div className="text-center mb-6">
         <div className="text-5xl mb-4">{vehicle.icon}</div>
         <h3 className="text-2xl font-bold text-gray-900 mb-2">{vehicle.type}</h3>
-        <div className="text-3xl font-bold text-primary-600 mb-1">{vehicle.rate}</div>
+        <div className="text-3xl font-bold text-teal-600 mb-1">{vehicle.rate}</div>
         <div className="text-sm text-gray-500">{vehicle.period}</div>
       </div>
       
@@ -157,12 +177,24 @@ const Services = () => {
 
   return (
     <div className="min-h-screen">
+      <style>{`
+        .scroll-animate {
+          opacity: 0;
+          transform: translateY(50px);
+          transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .scroll-animate.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
+      <section className="bg-gradient-to-br from-teal-600 to-teal-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Services & Pricing</h1>
-            <p className="text-xl text-primary-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Transparent per-minute pricing for all vehicle types with secure QR payments 
               and comprehensive parking management solutions.
             </p>
@@ -173,7 +205,7 @@ const Services = () => {
       {/* Vehicle Types Pricing */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-animate">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Vehicle Type Pricing
             </h2>
@@ -270,8 +302,8 @@ const Services = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="card p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                  <feature.icon className="h-8 w-8 text-primary-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
+                  <feature.icon className="h-8 w-8 text-teal-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
                 <p className="text-gray-600 text-sm mb-4">{feature.description}</p>
@@ -304,8 +336,8 @@ const Services = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full mb-6">
-                  <benefit.icon className="h-10 w-10 text-primary-600" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full mb-6">
+                  <benefit.icon className="h-10 w-10 text-teal-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{benefit.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
@@ -357,7 +389,7 @@ const Services = () => {
                 Learn About Integration
               </Link>
             </div>
-            <div className="bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl p-8">
+            <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl p-8">
               <div className="text-6xl mb-4 text-center">🔗</div>
               <h3 className="text-2xl font-bold text-gray-900 text-center mb-4">
                 Connected Ecosystem
@@ -372,25 +404,25 @@ const Services = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary-600 text-white">
+      <section className="py-20 bg-teal-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-teal-100 mb-8 max-w-3xl mx-auto">
             Join parking facilities across Ethiopia that are already using Easy Park 
             to streamline their operations and increase revenue.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/contact"
-              className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
+              className="btn bg-white text-teal-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
             >
               Request Demo
             </Link>
             <Link
               to="/about"
-              className="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg font-semibold"
+              className="btn border-2 border-white text-white hover:bg-white hover:text-teal-600 px-8 py-3 text-lg font-semibold"
             >
               Learn More
             </Link>

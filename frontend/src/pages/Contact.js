@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import {
   MapPinIcon,
@@ -19,6 +19,27 @@ const Contact = () => {
     message: ''
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -52,12 +73,24 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen">
+      <style>{`
+        .scroll-animate {
+          opacity: 0;
+          transform: translateY(50px);
+          transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .scroll-animate.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
+      <section className="bg-gradient-to-br from-teal-600 to-teal-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
-            <p className="text-xl text-primary-100 max-w-3xl mx-auto">
+            <p className="text-xl text-teal-100 max-w-3xl mx-auto">
               Get in touch with our team for demos, support, or any questions about Easy Park.
             </p>
           </div>
@@ -68,7 +101,7 @@ const Contact = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div>
+            <div className="scroll-animate">
               <div className="card">
                 <div className="card-header">
                   <h2 className="text-2xl font-bold text-gray-900">Send us a Message</h2>
@@ -155,7 +188,7 @@ const Contact = () => {
                 </div>
                 <div className="card-body space-y-6">
                   <div className="flex items-start space-x-3">
-                    <MapPinIcon className="h-6 w-6 text-primary-600 mt-1" />
+                    <MapPinIcon className="h-6 w-6 text-teal-600 mt-1" />
                     <div>
                       <h4 className="font-semibold text-gray-900">Office Location</h4>
                       <p className="text-gray-600">Bole, Addis Ababa<br />Ethiopia</p>
@@ -163,7 +196,7 @@ const Contact = () => {
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <PhoneIcon className="h-6 w-6 text-primary-600 mt-1" />
+                    <PhoneIcon className="h-6 w-6 text-teal-600 mt-1" />
                     <div>
                       <h4 className="font-semibold text-gray-900">Phone</h4>
                       <p className="text-gray-600">+251 911 234 567</p>
@@ -172,7 +205,7 @@ const Contact = () => {
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <MailIcon className="h-6 w-6 text-primary-600 mt-1" />
+                    <MailIcon className="h-6 w-6 text-teal-600 mt-1" />
                     <div>
                       <h4 className="font-semibold text-gray-900">Email</h4>
                       <p className="text-gray-600">info@easypark.et</p>
@@ -181,7 +214,7 @@ const Contact = () => {
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <ClockIcon className="h-6 w-6 text-primary-600 mt-1" />
+                    <ClockIcon className="h-6 w-6 text-teal-600 mt-1" />
                     <div>
                       <h4 className="font-semibold text-gray-900">Business Hours</h4>
                       <p className="text-gray-600">Monday - Friday: 8:00 AM - 6:00 PM</p>
@@ -200,13 +233,13 @@ const Contact = () => {
                 <div className="card-body">
                   <p className="text-gray-600 mb-4">Stay connected with us on social media for updates and news.</p>
                   <div className="flex space-x-4">
-                    <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors">
+                    <a href="#" className="text-gray-400 hover:text-teal-600 transition-colors">
                       <FacebookIcon className="h-6 w-6" />
                     </a>
-                    <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors">
+                    <a href="#" className="text-gray-400 hover:text-teal-600 transition-colors">
                       <TwitterIcon className="h-6 w-6" />
                     </a>
-                    <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors">
+                    <a href="#" className="text-gray-400 hover:text-teal-600 transition-colors">
                       <LinkedinIcon className="h-6 w-6" />
                     </a>
                   </div>
@@ -219,16 +252,16 @@ const Contact = () => {
                   <h3 className="text-xl font-semibold text-gray-900">Quick Links</h3>
                 </div>
                 <div className="card-body space-y-3">
-                  <a href="/about" className="block text-primary-600 hover:text-primary-700 font-medium">
+                  <a href="/about" className="block text-teal-600 hover:text-primary-700 font-medium">
                     About Easy Park →
                   </a>
-                  <a href="/services" className="block text-primary-600 hover:text-primary-700 font-medium">
+                  <a href="/services" className="block text-teal-600 hover:text-primary-700 font-medium">
                     Our Services →
                   </a>
-                  <a href="/testimony" className="block text-primary-600 hover:text-primary-700 font-medium">
+                  <a href="/testimony" className="block text-teal-600 hover:text-primary-700 font-medium">
                     Customer Testimonials →
                   </a>
-                  <a href="/login" className="block text-primary-600 hover:text-primary-700 font-medium">
+                  <a href="/login" className="block text-teal-600 hover:text-primary-700 font-medium">
                     Admin Login →
                   </a>
                 </div>
