@@ -122,6 +122,7 @@ const Navbar = () => {
                     <span>{link.name}</span>
                   </Link>
                 ))}
+                <ThemeToggle />
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 btn btn-outline"

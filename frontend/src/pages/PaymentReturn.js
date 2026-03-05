@@ -11,11 +11,13 @@ const PaymentReturn = () => {
   const [amount, setAmount] = useState('');
 
   useEffect(() => {
-    // Try URL params first, then fall back to localStorage
-    const tx_ref = searchParams.get('tx_ref') 
-      || searchParams.get('trx_ref') 
+    const tx_ref = searchParams.get('tx_ref')
+      || searchParams.get('trx_ref')
       || localStorage.getItem('pending_tx_ref');
     const chapaStatus = searchParams.get('status');
+
+    localStorage.removeItem('pending_tx_ref');
+    localStorage.removeItem('pending_vehicle_id');
 
     if (!tx_ref) {
       setStatus('failed');
@@ -23,40 +25,46 @@ const PaymentReturn = () => {
       return;
     }
 
-    // Clean up localStorage after reading
-    localStorage.removeItem('pending_tx_ref');
-    localStorage.removeItem('pending_vehicle_id');
-
-    verifyPayment(tx_ref, chapaStatus);
+    // If Chapa already confirmed success in the redirect URL, show success immediately
+    // then quietly verify in background to fetch the amount
+    if (chapaStatus === 'success') {
+      setStatus('success');
+      setMessage('Payment completed successfully!');
+      verifyInBackground(tx_ref);
+    } else {
+      verifyPayment(tx_ref);
+    }
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const verifyPayment = async (tx_ref, chapaStatus) => {
+  const verifyInBackground = async (tx_ref) => {
+    try {
+      const response = await paymentService.verifyPayment(tx_ref);
+      const data = response.data;
+      if (data.vehicle?.fee) {
+        setAmount(`ETB ${data.vehicle.fee.toFixed(2)}`);
+      }
+    } catch (error) {
+      // Silent — already showing success based on Chapa redirect status
+    }
+  };
+
+  const verifyPayment = async (tx_ref) => {
     try {
       setStatus('verifying');
       const response = await paymentService.verifyPayment(tx_ref);
       const data = response.data;
 
-      if (data.status === 'paid') {
+      if (data.status === 'paid' || data.status === 'success') {
         setStatus('success');
         setMessage('Payment completed successfully!');
         setAmount(data.vehicle?.fee ? `ETB ${data.vehicle.fee.toFixed(2)}` : '');
-      } else if (chapaStatus === 'success') {
-        // Chapa says success but backend hasn't updated yet — show success anyway
-        setStatus('success');
-        setMessage('Payment completed! Dashboard will update shortly.');
       } else {
         setStatus('pending');
-        setMessage('Payment is still being processed. Please wait.');
+        setMessage('Payment is still being processed. Please check the dashboard.');
       }
     } catch (error) {
-      // If Chapa returned success in URL params, still show success
-      if (chapaStatus === 'success') {
-        setStatus('success');
-        setMessage('Payment completed! Please verify from the dashboard.');
-      } else {
-        setStatus('failed');
-        setMessage(error.response?.data?.message || 'Payment verification failed.');
-      }
+      setStatus('failed');
+      setMessage(error.response?.data?.message || 'Payment verification failed. Please check the dashboard.');
     }
   };
 
@@ -65,7 +73,7 @@ const PaymentReturn = () => {
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
         {/* Logo */}
         <div className="mb-6">
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-2xl font-bold">🅿️</span>
           </div>
           <h1 className="text-xl font-bold text-gray-800">Easy Park</h1>

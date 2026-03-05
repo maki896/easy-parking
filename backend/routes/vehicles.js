@@ -129,6 +129,53 @@ router.get('/', async (req, res) => {
   }
 });
 
+// @route   GET /api/vehicles/stats/summary
+// @desc    Get vehicle statistics summary
+// @access  Private
+// IMPORTANT: must be declared BEFORE /:id to avoid Express matching 'stats' as an id
+router.get('/stats/summary', async (req, res) => {
+  try {
+    const totalVehicles = await Vehicle.countDocuments();
+    const activeVehicles = await Vehicle.countDocuments({ status: 'active' });
+    const completedVehicles = await Vehicle.countDocuments({ status: 'completed' });
+    const paidVehicles = await Vehicle.countDocuments({ paymentStatus: 'paid' });
+    const unpaidVehicles = await Vehicle.countDocuments({ paymentStatus: 'pending' });
+
+    // Calculate total revenue
+    const paidVehiclesData = await Vehicle.find({ paymentStatus: 'paid' });
+    const totalRevenue = paidVehiclesData.reduce((sum, vehicle) => sum + vehicle.fee, 0);
+
+    // Vehicle type breakdown
+    const vehicleTypeStats = await Vehicle.aggregate([
+      {
+        $group: {
+          _id: '$vehicleType',
+          count: { $sum: 1 },
+          avgFee: { $avg: '$fee' }
+        }
+      }
+    ]);
+
+    res.json({
+      summary: {
+        totalVehicles,
+        activeVehicles,
+        completedVehicles,
+        paidVehicles,
+        unpaidVehicles,
+        totalRevenue
+      },
+      vehicleTypeStats
+    });
+  } catch (error) {
+    console.error('Vehicle stats error:', error);
+    res.status(500).json({
+      message: 'Server error while fetching vehicle statistics',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/vehicles/:id
 // @desc    Get vehicle by ID
 // @access  Private
@@ -211,52 +258,6 @@ router.delete('/:id', async (req, res) => {
     console.error('Delete vehicle error:', error);
     res.status(500).json({
       message: 'Server error while deleting vehicle',
-      error: error.message
-    });
-  }
-});
-
-// @route   GET /api/vehicles/stats/summary
-// @desc    Get vehicle statistics summary
-// @access  Private
-router.get('/stats/summary', async (req, res) => {
-  try {
-    const totalVehicles = await Vehicle.countDocuments();
-    const activeVehicles = await Vehicle.countDocuments({ status: 'active' });
-    const completedVehicles = await Vehicle.countDocuments({ status: 'completed' });
-    const paidVehicles = await Vehicle.countDocuments({ paymentStatus: 'paid' });
-    const unpaidVehicles = await Vehicle.countDocuments({ paymentStatus: 'pending' });
-
-    // Calculate total revenue
-    const paidVehiclesData = await Vehicle.find({ paymentStatus: 'paid' });
-    const totalRevenue = paidVehiclesData.reduce((sum, vehicle) => sum + vehicle.fee, 0);
-
-    // Vehicle type breakdown
-    const vehicleTypeStats = await Vehicle.aggregate([
-      {
-        $group: {
-          _id: '$vehicleType',
-          count: { $sum: 1 },
-          avgFee: { $avg: '$fee' }
-        }
-      }
-    ]);
-
-    res.json({
-      summary: {
-        totalVehicles,
-        activeVehicles,
-        completedVehicles,
-        paidVehicles,
-        unpaidVehicles,
-        totalRevenue
-      },
-      vehicleTypeStats
-    });
-  } catch (error) {
-    console.error('Vehicle stats error:', error);
-    res.status(500).json({
-      message: 'Server error while fetching vehicle statistics',
       error: error.message
     });
   }
