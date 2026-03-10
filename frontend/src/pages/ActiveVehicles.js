@@ -248,8 +248,8 @@ const ActiveVehicles = () => {
             Active Vehicles ({filteredVehicles.length})
           </h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="table">
+        <div className="overflow-hidden">
+          <table className="table w-full">
             <thead className="table-header">
               <tr>
                 <th className="table-header-cell">Plate Number</th>
