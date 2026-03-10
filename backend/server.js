@@ -49,8 +49,20 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/easyparki
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => {
+.then(async () => {
   console.log('✅ Connected to MongoDB');
+  
+  // Initialize default rates if not already set
+  const Rate = require('./models/Rate');
+  try {
+    const existingRates = await Rate.find({});
+    if (existingRates.length === 0) {
+      await Rate.setDefaultRates();
+      console.log('✅ Default rates initialized');
+    }
+  } catch (error) {
+    console.error('⚠️  Error initializing rates:', error.message);
+  }
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);

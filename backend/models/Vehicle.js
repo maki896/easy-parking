@@ -73,7 +73,7 @@ const vehicleSchema = new mongoose.Schema({
 });
 
 // Index for better query performance
-vehicleSchema.index({ plateNumber: 1 });
+// Note: plateNumber index is already created by unique:true above
 vehicleSchema.index({ status: 1 });
 vehicleSchema.index({ paymentStatus: 1 });
 vehicleSchema.index({ entryTime: -1 });
