@@ -6,7 +6,8 @@ const vehicleSchema = new mongoose.Schema({
     required: [true, 'Plate number is required'],
     uppercase: true,
     trim: true,
-    unique: true,
+    // Note: No unique constraint - allows same plate to re-park after completion
+    // The route checks for active duplicates to prevent double-parking
     validate: {
       validator: function(v) {
         // Basic plate number validation (adjust as needed for Ethiopian plates)
