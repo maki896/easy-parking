@@ -15,6 +15,7 @@ const paymentRoutes = require('./routes/payments');
 const reportRoutes = require('./routes/reports');
 const contactRoutes = require('./routes/contact');
 const rateRoutes = require('./routes/rates');
+const capacityRoutes = require('./routes/capacity');
 
 // Initialize Express app
 const app = express();
@@ -36,7 +37,7 @@ app.use(helmet({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 10000000 // limit each IP to 10000000 requests per windowMs
 });
 app.use(limiter);
 
@@ -63,6 +64,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/easyparki
   } catch (error) {
     console.error('⚠️  Error initializing rates:', error.message);
   }
+  
+  // Initialize and synchronize parking capacity
+  const ParkingCapacity = require('./models/ParkingCapacity');
+  try {
+    const capacity = await ParkingCapacity.getInstance();
+    await capacity.synchronizeWithVehicles();
+    console.log(`✅ Parking capacity synchronized: ${capacity.currentOccupied}/${capacity.totalCapacity} slots occupied`);
+  } catch (error) {
+    console.error('⚠️  Error synchronizing parking capacity:', error.message);
+  }
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
@@ -76,6 +87,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/rates', rateRoutes);
+app.use('/api/capacity', capacityRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

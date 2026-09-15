@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   CarIcon,
@@ -12,10 +12,37 @@ import {
   CreditCardIcon,
   BarChart3Icon,
   UsersIcon,
-  ZapIcon
+  ZapIcon,
+  ParkingSquareIcon,
+  ActivityIcon
 } from 'lucide-react';
+import { capacityService } from '../services/capacityService';
 
 const Home = () => {
+  const [capacity, setCapacity] = useState(null);
+  const [loadingCapacity, setLoadingCapacity] = useState(true);
+
+  useEffect(() => {
+    // Fetch initial capacity data
+    fetchCapacity();
+
+    // Auto-refresh capacity every 30 seconds
+    const interval = setInterval(fetchCapacity, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchCapacity = async () => {
+    try {
+      const response = await capacityService.getCurrentCapacity();
+      setCapacity(response.data);
+      setLoadingCapacity(false);
+    } catch (error) {
+      console.error('Failed to fetch capacity:', error);
+      setLoadingCapacity(false);
+    }
+  };
+
   useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -199,6 +226,127 @@ const Home = () => {
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-200 rounded-full opacity-50 blur-xl"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Live Parking Availability Section */}
+      <section className="py-16 bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <ActivityIcon className="h-4 w-4 mr-2" />
+              Live Updates Every 30 Seconds
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              🅿️ Parking Availability
+            </h2>
+            <p className="text-xl text-teal-100">
+              Real-time parking slot availability - Check before you arrive!
+            </p>
+          </div>
+
+          {loadingCapacity ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="loading-spinner h-12 w-12 border-white"></div>
+            </div>
+          ) : capacity ? (
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Total Capacity */}
+              <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl p-8 shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <ParkingSquareIcon className="h-12 w-12 text-teal-600" />
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-600">Total Capacity</p>
+                    <p className="text-4xl font-bold text-gray-900">{capacity.totalCapacity}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-center">Parking Slots</p>
+              </div>
+
+              {/* Available Slots */}
+              <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl p-8 shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <CheckCircleIcon className="h-12 w-12 text-green-600" />
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-600">Available Now</p>
+                    <p className="text-4xl font-bold text-green-600">{capacity.availableSlots}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-center">Free Slots</p>
+              </div>
+
+              {/* Occupancy Rate */}
+              <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl p-8 shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <TrendingUpIcon className="h-12 w-12 text-orange-600" />
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-600">Occupancy</p>
+                    <p className={`text-4xl font-bold ${
+                      capacity.occupancyPercentage >= 90 ? 'text-red-600' :
+                      capacity.occupancyPercentage >= 75 ? 'text-orange-600' :
+                      capacity.occupancyPercentage >= 50 ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>{capacity.occupancyPercentage}%</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-center">Utilization</p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl p-8 text-center">
+              <p className="text-gray-600">Unable to load parking availability</p>
+            </div>
+          )}
+
+          {/* Visual Progress Bar */}
+          {capacity && (
+            <div className="mt-8 bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Current Status</h3>
+                <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  capacity.isFull ? 'bg-red-100 text-red-800' :
+                  capacity.occupancyPercentage >= 75 ? 'bg-orange-100 text-orange-800' :
+                  capacity.occupancyPercentage >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {capacity.isFull ? '🔴 FULL' :
+                   capacity.occupancyPercentage >= 75 ? '🟠 High Occupancy' :
+                   capacity.occupancyPercentage >= 50 ? '🟡 Moderate' :
+                   '🟢 Available'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between text-sm font-medium mb-3">
+                <span className="text-gray-600">Occupied: {capacity.currentOccupied} vehicles</span>
+                <span className="text-gray-600">Available: {capacity.availableSlots} slots</span>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                <div
+                  className={`h-6 rounded-full transition-all duration-1000 flex items-center justify-center text-white text-xs font-bold ${
+                    capacity.occupancyPercentage >= 90 ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                    capacity.occupancyPercentage >= 75 ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
+                    capacity.occupancyPercentage >= 50 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
+                    'bg-gradient-to-r from-green-500 to-green-600'
+                  }`}
+                  style={{ width: `${capacity.occupancyPercentage}%` }}
+                >
+                  {capacity.occupancyPercentage > 10 && `${capacity.occupancyPercentage}%`}
+                </div>
+              </div>
+              
+              {capacity.isFull && (
+                <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-center font-medium">⚠️ Parking lot is currently full. Please check back later.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

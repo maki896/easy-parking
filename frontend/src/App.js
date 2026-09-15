@@ -16,6 +16,7 @@ import ActiveVehicles from './pages/ActiveVehicles';
 import CompletedVehicles from './pages/CompletedVehicles';
 import Reports from './pages/Reports';
 import RateSettings from './pages/RateSettings';
+import ParkingCapacity from './pages/ParkingCapacity';
 import NotFound from './pages/NotFound';
 import PaymentReturn from './pages/PaymentReturn';
 
@@ -117,6 +118,7 @@ function AppContent() {
                       <Route path="/completed-vehicles" element={<CompletedVehicles />} />
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/rate-settings" element={<RateSettings />} />
+                      <Route path="/parking-capacity" element={<ParkingCapacity />} />
                       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
                     </Routes>
                   </main>

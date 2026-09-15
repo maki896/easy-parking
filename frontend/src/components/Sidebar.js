@@ -8,6 +8,7 @@ import {
   CreditCardIcon,
   BarChart3Icon,
   SettingsIcon,
+  ParkingSquareIcon,
   LogOutIcon
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -55,6 +56,11 @@ const Sidebar = () => {
       name: 'Rate Settings',
       href: '/admin/rate-settings',
       icon: SettingsIcon,
+    },
+    {
+      name: 'Parking Capacity',
+      href: '/admin/parking-capacity',
+      icon: ParkingSquareIcon,
     },
   ];
 

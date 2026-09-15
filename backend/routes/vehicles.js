@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Vehicle = require('../models/Vehicle');
 const Rate = require('../models/Rate');
+const ParkingCapacity = require('../models/ParkingCapacity');
 const { auth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -43,6 +44,19 @@ router.post('/', [
 
     const { plateNumber, vehicleType, color } = req.body;
 
+    // Check parking capacity
+    const capacity = await ParkingCapacity.getInstance();
+    if (!capacity.canAcceptVehicle()) {
+      return res.status(400).json({
+        message: 'Parking lot is full',
+        capacity: {
+          totalCapacity: capacity.totalCapacity,
+          currentOccupied: capacity.currentOccupied,
+          availableSlots: capacity.availableSlots
+        }
+      });
+    }
+
     // Check if vehicle already exists
     const existingVehicle = await Vehicle.findOne({ 
       plateNumber: plateNumber.toUpperCase(),
@@ -72,10 +86,17 @@ router.post('/', [
     });
 
     await vehicle.save();
+    
+    // Increment parking capacity occupied count
+    await capacity.incrementOccupied();
 
     res.status(201).json({
       message: 'Vehicle added successfully',
-      vehicle
+      vehicle,
+      parkingStatus: {
+        availableSlots: capacity.availableSlots,
+        occupancyPercentage: capacity.occupancyPercentage
+      }
     });
   } catch (error) {
     console.error('Add vehicle error:', error);
@@ -222,10 +243,18 @@ router.put('/:id/exit', async (req, res) => {
 
     // Complete parking and calculate fee
     await vehicle.completeParking();
+    
+    // Decrement parking capacity occupied count
+    const capacity = await ParkingCapacity.getInstance();
+    await capacity.decrementOccupied();
 
     res.json({
       message: 'Vehicle exit recorded successfully',
-      vehicle
+      vehicle,
+      parkingStatus: {
+        availableSlots: capacity.availableSlots,
+        occupancyPercentage: capacity.occupancyPercentage
+      }
     });
   } catch (error) {
     console.error('Vehicle exit error:', error);
@@ -249,6 +278,12 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
+    // If vehicle was active, decrement capacity
+    if (vehicle.status === 'active') {
+      const capacity = await ParkingCapacity.getInstance();
+      await capacity.decrementOccupied();
+    }
+    
     await Vehicle.findByIdAndDelete(req.params.id);
 
     res.json({
