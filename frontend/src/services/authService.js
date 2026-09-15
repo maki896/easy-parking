@@ -1,8 +1,16 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    const cleanUrl = process.env.REACT_APP_API_URL.replace(/\/+$/, '');
+    return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+  }
+  return '/api';
+};
+
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: getBaseUrl(),
   timeout: 30000, // Increased from 10000 to 30000
   headers: {
     'Content-Type': 'application/json',

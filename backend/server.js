@@ -20,9 +20,25 @@ const capacityRoutes = require('./routes/capacity');
 // Initialize Express app
 const app = express();
 
+const path = require('path');
+const fs = require('fs');
+
 // CORS configuration - MUST be before helmet
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://192.168.8.68:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://192.168.8.68:3000'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl) or if origin is allowed or in non-production
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*') || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -146,7 +162,19 @@ app.use((error, req, res, next) => {
   });
 });
 
-// 404 handler
+// Serve static frontend build if available
+const frontendBuildPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(frontendBuildPath)) {
+  app.use(express.static(frontendBuildPath));
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+}
+
+// 404 handler for API routes or when static build is not present
 app.use('*', (req, res) => {
   res.status(404).json({
     message: 'Route not found'
