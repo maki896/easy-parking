@@ -80,6 +80,23 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/easyparki
   } catch (error) {
     console.error('⚠️  Error initializing rates:', error.message);
   }
+
+  // Initialize default admin user if none exists
+  const User = require('./models/User');
+  try {
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    if (adminCount === 0) {
+      const defaultAdmin = new User({
+        username: process.env.DEFAULT_ADMIN_USERNAME || 'admin',
+        password: process.env.DEFAULT_ADMIN_PASSWORD || 'admin123',
+        role: 'admin'
+      });
+      await defaultAdmin.save();
+      console.log('✅ Default admin account created (Username: admin, Password: admin123)');
+    }
+  } catch (error) {
+    console.error('⚠️  Error checking/creating default admin user:', error.message);
+  }
   
   // Initialize and synchronize parking capacity
   const ParkingCapacity = require('./models/ParkingCapacity');
