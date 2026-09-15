@@ -5,8 +5,23 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-// Load environment variables
-dotenv.config();
+const path = require('path');
+const fs = require('fs');
+
+// Load environment variables reliably from backend/.env or root .env
+const envBackendPath = path.join(__dirname, '.env');
+const envRootPath = path.join(__dirname, '../.env');
+if (fs.existsSync(envBackendPath)) {
+  dotenv.config({ path: envBackendPath });
+} else if (fs.existsSync(envRootPath)) {
+  dotenv.config({ path: envRootPath });
+} else {
+  dotenv.config();
+}
+
+// Default fallbacks for critical environment variables
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'easyparking_super_secret_jwt_key_2024_make_it_long_and_random_for_security';
+process.env.JWT_EXPIRE = process.env.JWT_EXPIRE || '7d';
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -19,9 +34,6 @@ const capacityRoutes = require('./routes/capacity');
 
 // Initialize Express app
 const app = express();
-
-const path = require('path');
-const fs = require('fs');
 
 // CORS configuration - MUST be before helmet
 const allowedOrigins = [

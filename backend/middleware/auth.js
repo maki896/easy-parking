@@ -17,7 +17,7 @@ const auth = async (req, res, next) => {
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'easyparking_super_secret_jwt_key_2024_make_it_long_and_random_for_security');
     
     // Find user by id
     const user = await User.findById(decoded.id);

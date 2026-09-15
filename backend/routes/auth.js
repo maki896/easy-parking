@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'easyparking_super_secret_jwt_key_2024_make_it_long_and_random_for_security', {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
